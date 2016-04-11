@@ -34,17 +34,17 @@ PNGCOLOR = (255, 255, 255)
 RAND = random.randrange(0, 999999)
 
 # ---------------------------------------------------------------------------
-STRAMT = int(input('Number of Stars <Example:2000>:'))
+STRAMT = int(raw_input('Number of Stars <Example:2000>:') or "2000")
 
-HUBX   = int(input('Length of Galaxy <Example:600>:'))
+HUBX   = float(raw_input('Length of Galaxy <Example:600>:') or "600")
 
-HUBY   = int(input('Height of Galaxy <Example:300>:'))
+HUBY   = float(raw_input('Height of Galaxy <Example:300>:') or "300")
 
-HUBZ   = int(input('Depth of Galaxy <Example:100>:'))
+HUBZ   = float(raw_input('Depth of Galaxy <Example:100>:') or "100")
 
-PNGSIZE    = int(input('X and Y Size of PNG <Example:1200>:'))
+PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
-PNGFRAME   = int(input('PNG Frame Size <Example:50>:'))
+PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
 stars = []
 

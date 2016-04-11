@@ -43,21 +43,21 @@ FUZZ   = 15
 
 # ---------------------------------------------------------------------------
 
-NUMHUB   = int(input('Number of Core Stars <Example:2000>:'))
+NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
-NUMDISK   = int(input('Number of Disk Stars <Example:4000>:'))
+NUMDISK = int(raw_input('Number of Disk Stars <Default:4000>:') or "4000")
 
-HUBRAD   = float(input('Radius of Core <Example:90.0>:'))
+HUBRAD = float(raw_input('Radius of Core <Default:90.0>:') or "90.0")
 
-DISKRAD   = float(input('Radius of Disk <Example:45.0>:'))
+DISKRAD = float(raw_input('Radius of Disk <Default:45.0>:') or "45.0")
 
-MAXHUBZ   = float(input('Maximum Depth of Core <Example:16.0>:'))
+MAXHUBZ = float(raw_input('Maximum Depth of Core <Default:16.0>:') or "16.0")
 
-MAXDISKZ   = float(input('Maximum Depth of Ring <Example:2.0>:'))
+MAXDISKZ = float(raw_input('Maximum Depth of Arms <Default:2.0>:') or "2.0")
 
-PNGSIZE   = float(input('X and Y Size of PNG <Example:1200>:'))
+PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
-PNGFRAME   = float(input('PNG Frame Size <Example:50>:'))
+PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
 stars = []
 
