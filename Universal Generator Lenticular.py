@@ -31,9 +31,11 @@ PNGBGCOLOR = (0, 0, 0)
 PNGCOLOR = (255, 255, 255)
 
 # Quick Filename
-RAND = random.randrange(0, 999999)
+RAND = random.randrange(0, 108000000000)
 
 # ---------------------------------------------------------------------------
+NAME = raw_input('Galaxy Name <You must input a name>:')
+
 STRAMT = int(raw_input('Number of Stars <Example:2000>:') or "2000")
 
 HUBX   = float(raw_input('X and Y Size of Galaxy <Example:600>:') or "600")
@@ -101,4 +103,14 @@ def drawToPNG(filename):
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG("lenticulargalaxy " + str(RAND) + ".png")
+drawToPNG("lenticulargalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+
+# Create the galaxy's data galaxy.txt
+with open("lenticulargalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+    text_file.write("Galaxy Number: {}".format(RAND))
+    text_file.write("Galaxy Name: {}".format(NAME))
+    text_file.write("Stars: {}".format(STRAMT))
+    text_file.write("Hub Radius: {}".format(HUBX))
+    text_file.write("Hub Maximum Depth: {}".format(HUBZ))
+    text_file.write("Image Size: {}".format(PNGSIZE))
+    text_file.write("Frame Size: {}".format(PNGFRAME))

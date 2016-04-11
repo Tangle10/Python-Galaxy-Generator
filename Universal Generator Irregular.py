@@ -31,12 +31,16 @@ PNGBGCOLOR = (0, 0, 0)
 PNGCOLOR = (255, 255, 255)
 
 # Quick Filename
-RAND = random.randrange(0, 999999)
+RAND = random.randrange(0, 36000000000)
 
 # ---------------------------------------------------------------------------
+NAME = raw_input('Galaxy Name <You must input a name>:')
+
 STRAMT = int(raw_input('Number of Stars <Example:2000>:') or "2000")
 
-HUBX   = float(raw_input('X and Y Size of Galaxy <Example:600>:') or "600")
+HUBX   = float(raw_input('Length of Galaxy <Example:600>:') or "600")
+
+HUBY   = float(raw_input('Height of Galaxy <Example:300>:') or "300")
 
 HUBZ   = float(raw_input('Depth of Galaxy <Example:100>:') or "100")
 
@@ -53,12 +57,12 @@ def generateStars():
     # at maxHubR (s = maxHubZ / maxHubR^2) AND so that minimum hub Z is at
     # maximum disk Z. (Avoids edge of hub being below edge of disk)
 
-    scale = HUBZ / (HUBX * HUBX)
+    scale = HUBZ / (HUBX * HUBY)
     i = 0
     while i < STRAMT:
         # Choose a random distance from center
         distX = random.randrange(0, HUBX)
-        distY = random.random(0, HUBX)
+        distY = random.randrange(0, HUBY)
 
         # Any rotation (points are not on arms)
         theta = random.random() * 360
@@ -101,4 +105,15 @@ def drawToPNG(filename):
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG("irregulargalaxy " + str(RAND) + ".png")
+drawToPNG("irregulargalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+
+# Create the galaxy's data galaxy.txt
+with open("irregulargalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+    text_file.write("Galaxy Number: {}".format(RAND))
+    text_file.write("Galaxy Name: {}".format(NAME))
+    text_file.write("Hub Stars: {}".format(STRAMT))
+    text_file.write("Hub Length: {}".format(HUBX))
+    text_file.write("Hub Width: {}".format(HUBY))
+    text_file.write("Hub Depth: {}".format(HUBZ))
+    text_file.write("Image Size: {}".format(PNGSIZE))
+    text_file.write("Frame Size: {}".format(PNGFRAME))
