@@ -80,7 +80,7 @@ def generateStars():
 
 
 def drawToPNG(filename):
-    image = Image.new("RGB", (PNGSIZE, PNGSIZE), PNGBGCOLOR)
+    image = Image.new("RGB", (int(PNGSIZE), int(PNGSIZE)), PNGBGCOLOR)
     draw = ImageDraw.Draw(image)
 
     # Find maximal star distance

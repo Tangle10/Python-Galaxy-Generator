@@ -10,7 +10,7 @@
 #
 # http://bits.bristol.ac.uk/motz/tep/galaxy.html
 #
-# Unfortunately, the original python code has been lost to time and a lack of wanting-to- # search-through-several-hundred-webpages-for-one-webarchive-page. Sorry, original python # guy.
+# Unfortunately, the original python code has been lost to time and a lack of wanting-to- search-through-several-hundred-webpages-for-one-webarchive-page. Sorry, original python guy.
 #
 # A fair portion of the revisions and code is from /u/_Foxtrot_ on reddit. They are much better with the python-fu than I!
 #
@@ -80,7 +80,7 @@ def generateStars():
 
 
 def drawToPNG(filename):
-    image = Image.new("RGB", (PNGSIZE, PNGSIZE), PNGBGCOLOR)
+    image = Image.new("RGB", (int(PNGSIZE), int(PNGSIZE)), PNGBGCOLOR)
     draw = ImageDraw.Draw(image)
 
     # Find maximal star distance
