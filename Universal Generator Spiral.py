@@ -31,9 +31,11 @@ PNGBGCOLOR = (0, 0, 0)
 PNGCOLOR = (255, 255, 255)
 
 # Quick Filename
-RAND = random.randrange(0, 999999)
+RAND = random.randrange(0, 240000000000)
 
 # ---------------------------------------------------------------------------
+NAME = raw_input('Galaxy Name <You must input a name>:')
+
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
 NUMDISK = int(raw_input('Number of Disk Stars <Default:4000>:') or "4000")
@@ -158,4 +160,21 @@ def drawToPNG(filename):
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG("spiralgalaxy" + str(RAND) + ".png")
+drawToPNG("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+
+# Create the galaxy's data galaxy.txt
+with open("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+    text_file.write("Galaxy Number: {}".format(RAND))
+    text_file.write("Galaxy Name: {}".format(NAME))
+    text_file.write("Hub Stars: {}".format(NUMHUB))
+    text_file.write("Disk Stars: {}".format(NUMDISK))
+    text_file.write("Hub Radius: {}".format(HUBRAD))
+    text_file.write("Disk Radius: {}".format(DISKRAD))
+    text_file.write("Arm Number: {}".format(NUMARMS))
+    text_file.write("Arm Rotation: {}".format(ARMROTS))
+    text_file.write("Arm Width: {}".format(ARMWIDTH))
+    text_file.write("Hub Maximum Depth: {}".format(MAXHUBZ))
+    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ))
+    text_file.write("Maximum Outlier Distance: {}".format(FUZZ))
+    text_file.write("Image Size: {}".format(PNGSIZE))
+    text_file.write("Frame Size: {}".format(PNGFRAME))
