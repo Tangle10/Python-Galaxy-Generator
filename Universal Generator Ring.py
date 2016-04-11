@@ -30,7 +30,7 @@ PNGBGCOLOR = (0, 0, 0)
 PNGCOLOR = (255, 255, 255)
 
 # Quick Filename
-RAND = random.randrange(0, 999999)
+RAND = random.randrange(0, 108000000000)
 
 #Parts from the Spiral generator, but uneditable
 NUMARMS   = 12
@@ -42,6 +42,7 @@ ARMWIDTH   = 65
 FUZZ   = 15
 
 # ---------------------------------------------------------------------------
+NAME = raw_input('Galaxy Name <You must input a name>:')
 
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
@@ -61,6 +62,7 @@ PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
 stars = []
 
+
 def generateStars():
     # omega is the separation (in degrees) between each arm
     # Prevent div by zero error:
@@ -78,81 +80,101 @@ def generateStars():
         # rotations specified.  By multiplying the distance by the number of
         # rotations the rotation is proportional to the distance from the
         # center, to give curvature
-        theta = ( ( 360.0 * ARMROTS * ( dist / DISKRAD ) )
-        
-            # Then move the point further around by a random factor up to
-            # ARMWIDTH
-                + random.random() * ARMWIDTH
-                
-            # Then multiply the angle by a factor of omega, putting the
-            # point into one of the arms
-                #+ (omega * random.random() * NUMARMS )
-                + omega * random.randrange( 0, NUMARMS )
-                
-            # Then add a further random factor, 'fuzzin' the edge of the arms
-                + random.random() * FUZZ * 2.0 - FUZZ
-                #+ random.randrange( -FUZZ, FUZZ )
-            )
-            
+        theta = ((360.0 * ARMROTS * (dist / DISKRAD))
+
+                 # Then move the point further around by a random factor up to
+                 # ARMWIDTH
+                 + random.random() * ARMWIDTH
+
+                 # Then multiply the angle by a factor of omega, putting the
+                 # point into one of the arms
+                 # + (omega * random.random() * NUMARMS )
+                 + omega * random.randrange(0, NUMARMS)
+
+                 # Then add a further random factor, 'fuzzin' the edge of the arms
+                 + random.random() * FUZZ * 2.0 - FUZZ
+                 # + random.randrange( -FUZZ, FUZZ )
+                 )
+
         # Convert to cartesian
-        x = math.cos( theta * math.pi / 180.0 ) * dist
-        y = math.sin( theta * math.pi / 180.0 ) * dist
+        x = math.cos(theta * math.pi / 180.0) * dist
+        y = math.sin(theta * math.pi / 180.0) * dist
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
 
-        # Add star to the stars array            
-        stars.append( ( x, y ,z ) )
+        # Add star to the stars array
+        stars.append((x, y, z))
 
         # Process next star
         i = i + 1
-    
+
     # Now generate the Hub. This places a point on or under the curve
     # maxHubZ - s d^2 where s is a scale factor calculated so that z = 0 is
     # at maxHubR (s = maxHubZ / maxHubR^2) AND so that minimum hub Z is at
     # maximum disk Z. (Avoids edge of hub being below edge of disk)
-    
-    scale = MAXHUBZ / ( HUBRAD * HUBRAD )
+
+    scale = MAXHUBZ / (HUBRAD * HUBRAD)
     i = 0
     while i < NUMHUB:
         # Choose a random distance from center
         dist = random.random() * HUBRAD
-      
+
         # Any rotation (points are not on arms)
         theta = random.random() * 360
-        
+
         # Convert to cartesian
-        x = math.cos( theta * math.pi / 180.0) * dist
-        y = math.sin( theta * math.pi / 180.0) * dist
-        z = ( random.random() * 2 - 1 ) * ( MAXHUBZ - scale * dist * dist )
-        
+        x = math.cos(theta * math.pi / 180.0) * dist
+        y = math.sin(theta * math.pi / 180.0) * dist
+        z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
+
         # Add star to the stars array
-        stars.append( ( x, y, z ) )
-    
+        stars.append((x, y, z))
+
         # Process next star
         i = i + 1
 
-def drawToPNG( filename ):
-    image = Image.new( "RGB", ( PNGSIZE, PNGSIZE ), PNGBGCOLOR )
-    draw = ImageDraw.Draw( image )
-    
+
+def drawToPNG(filename):
+    image = Image.new("RGB", (int(PNGSIZE), int(PNGSIZE)), PNGBGCOLOR)
+    draw = ImageDraw.Draw(image)
+
     # Find maximal star distance
     max = 0
-    for ( x, y, z ) in stars:
+    for (x, y, z) in stars:
         if abs(x) > max: max = x
         if abs(y) > max: max = y
         if abs(z) > max: max = z
-    
+
     # Calculate zoom factor to fit the galaxy to the PNG size
-    factor = float( PNGSIZE - PNGFRAME * 2 ) / ( max * 2 )
-    for ( x, y, z ) in stars:
+    factor = float(PNGSIZE - PNGFRAME * 2) / (max * 2)
+    for (x, y, z) in stars:
         sx = factor * x + PNGSIZE / 2
         sy = factor * y + PNGSIZE / 2
-        draw.point( ( sx, sy ), fill = PNGCOLOR )
-      
+        draw.point((sx, sy), fill=PNGCOLOR)
+
     # Save the PNG
-    image.save( filename )
-          
-# Generate the galaxy          
+    image.save(filename)
+    print filename
+
+
+# Generate the galaxy
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG( "ringgalaxy " + str(RAND) + ".png")
+drawToPNG("ringgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+
+# Create the galaxy's data galaxy.txt
+with open("ringgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+    text_file.write("Galaxy Number: {}".format(RAND))
+    text_file.write("Galaxy Name: {}".format(NAME))
+    text_file.write("Hub Stars: {}".format(NUMHUB))
+    text_file.write("Disk Stars: {}".format(NUMDISK))
+    text_file.write("Hub Radius: {}".format(HUBRAD))
+    text_file.write("Disk Radius: {}".format(DISKRAD))
+    text_file.write("Arm Number: {}".format(NUMARMS))
+    text_file.write("Arm Rotation: {}".format(ARMROTS))
+    text_file.write("Arm Width: {}".format(ARMWIDTH))
+    text_file.write("Hub Maximum Depth: {}".format(MAXHUBZ))
+    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ))
+    text_file.write("Maximum Outlier Distance: {}".format(FUZZ))
+    text_file.write("Image Size: {}".format(PNGSIZE))
+    text_file.write("Frame Size: {}".format(PNGFRAME))
