@@ -1,8 +1,8 @@
 # Python-Galaxy-Generator
 Generates a Y-axis 2D representation of a 3D galaxy. 
 
-Please not the this program requires Python and either PIL or pillow, both of which I'm pretty sure work with this. You should probably 
-name your galaxies after making them, just because.
+Please note that this program requires Python and either PIL or pillow, both of which I'm pretty sure work with this. You should probably 
+name your galaxies.
 
 A small .py that allows you to input values to create a galaxy.
 This script generates a 3D galaxy from a number of parameters and stores
