@@ -34,7 +34,7 @@ PNGCOLOR = (255, 255, 255)
 RAND = random.randrange(0, 240000000000)
 
 # ---------------------------------------------------------------------------
-NAME = raw_input('Galaxy Name <You must input a name>:')
+NAME = raw_input('Galaxy Name:')
 
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
@@ -56,9 +56,34 @@ MAXDISKZ = float(raw_input('Maximum Depth of Arms <Default:2.0>:') or "2.0")
 
 FUZZ = float(raw_input('Maximum Outlier Distance from Arms <Default:25.0>:') or "25.0")
 
+GLOC = int(raw_input('Number of Clusters <Default:0>:') or "0")
+
+GLOS = int(raw_input('Number of Stars in each Cluster <Default:0>:') or "0")
+
+GLOR = int (raw_input('Radius of each cluster <Default:0>:') or "0")
+
 PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
 PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
+
+clusters = []
+
+
+def generateClusters():
+    c = 0
+    while c < GLOC:
+        dist = random.random((HUBRAD + DISKRAD) * 1.3)
+        theta = random.random() * 360
+        
+        # Convert to Cartesian
+        x = math.cos(theta * math.pi / 180.0) * dist
+        y = math.sin(theta * math.pi / 180.0) * dist
+        z = (random.random() * 2 - 1) * (GLOR - scale * dist * dist)
+        
+        clusters.append((x, y, z))
+        
+        c = c+1
+        
 
 stars = []
 
@@ -132,6 +157,25 @@ def generateStars():
         # Process next star
         i = i + 1
 
+    scale = GLOR
+    i = 0
+    while i < GLOS:
+        # Choose a random distance from center
+        dist = random.random() * GLOR
+
+        # Any rotation (points are not on arms)
+        theta = random.random() * 360
+
+        # Convert to cartesian
+        x = math.cos(theta * math.pi / 180.0) * dist
+        y = math.sin(theta * math.pi / 180.0) * dist
+        z = (random.random() * 2 - 1) * (GLOR - scale * dist * dist)
+
+        # Add star to the stars array
+        stars.append((x, y, z))
+
+        # Process next star
+        i = i + 1
 
 def drawToPNG(filename):
     image = Image.new("RGB", (int(PNGSIZE), int(PNGSIZE)), PNGBGCOLOR)
