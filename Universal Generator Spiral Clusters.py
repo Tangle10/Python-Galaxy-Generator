@@ -53,11 +53,11 @@ MAXDISKZ = float(raw_input('Maximum Depth of Arms <Default:2.0>:') or "2.0")
 
 FUZZ = float(raw_input('Maximum Outlier Distance from Arms <Default:25.0>:') or "25.0")
 
-GLOC = int(raw_input('Number of Clusters <Default:0>:') or "0")
+GLOC = int(raw_input('Number of Clusters <Default:1>:') or "1")
 
-GLOS = int(raw_input('Number of Stars in each Cluster <Default:0>:') or "0")
+GLOS = int(raw_input('Number of Stars in each Cluster <Default:100>:') or "100")
 
-GLOR = int (raw_input('Radius of each cluster <Default:0>:') or "0")
+GLOR = int (raw_input('Radius of each cluster <Default:10>:') or "10")
 
 PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
@@ -69,15 +69,15 @@ clusters = []
 def generateClusters():
     c = 0
     while c < GLOC:
-        dist = random.randrange(0, (HUBRAD + DISKRAD) * 1.3)
+        dist = random.random() * (HUBRAD + DISKRAD)
         theta = random.random() * 360
         
         # Convert to Cartesian
         x = math.cos(theta * math.pi / 180.0) * dist
         y = math.sin(theta * math.pi / 180.0) * dist
-        z = (random.random() * 2 - 1) * (GLOR - scale * dist * dist)
+        z = (random.random() * 2 - 1) * ((HUBRAD + DISKRAD) - scale * dist * dist)
         
-        clusters.append((x, y, z))
+        clusters.append((x, y, z, GLOS))
         
         c = c+1
         
@@ -199,12 +199,12 @@ def generateStars():
         i = i + 1
         sran = 0
     
-    scale = MAXHUBZ / (HUBRAD * HUBRAD)
+    scale = GLOR
     i = 0
-    while i < NUMHUB:
+    while i < GLOS:
         
         # Choose a random distance from center
-        dist = random.random() * HUBRAD
+        dist = (random.random() * (HUBRAD + DISKRAD))
 
         # Any rotation (points are not on arms)
         theta = random.random() * 360
@@ -212,7 +212,7 @@ def generateStars():
         # Convert to cartesian
         x = math.cos(theta * math.pi / 180.0) * dist
         y = math.sin(theta * math.pi / 180.0) * dist
-        z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
+        z = (random.random() * 2 - 1) * (GLOR - scale * dist * dist)
 
         SRAN = random.randrange(0, 8)
         if SRAN == 0:
