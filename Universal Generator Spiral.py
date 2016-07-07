@@ -34,7 +34,7 @@ PNGCOLOR = (255, 255, 255)
 RAND = random.randrange(0, 240000000000)
 
 # ---------------------------------------------------------------------------
-NAME = raw_input('Galaxy Name <You must input a name>:')
+NAME = raw_input('Galaxy Name:')
 
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
@@ -60,6 +60,7 @@ PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
 PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
+
 stars = []
 
 
@@ -72,6 +73,7 @@ def generateStars():
         omega = 0.0
     i = 0
     while i < NUMDISK:
+        
         # Choose a random distance from center
         dist = HUBRAD + random.random() * DISKRAD
 
@@ -100,12 +102,33 @@ def generateStars():
         x = math.cos(theta * math.pi / 180.0) * dist
         y = math.sin(theta * math.pi / 180.0) * dist
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
+        
+        SRAN = random.randrange(0, 8)
+        if SRAN == 0:
+            scol = (255, 211, 186)
+        elif SRAN == 1: 
+            scol = (255, 211, 186)
+        elif SRAN == 2: 
+            scol = (255, 211, 186)
+        elif SRAN == 3: 
+            scol = (255, 222, 182)
+        elif SRAN == 4: 
+            scol = (255, 222, 182)
+        elif SRAN == 5: 
+            scol = (255, 244, 194)
+        elif SRAN == 6: 
+            scol = (255, 225, 255)
+        elif SRAN == 7: 
+            scol = (228, 244, 255)
+        elif SRAN == 8: 
+            scol = (208, 220, 255)
 
         # Add star to the stars array
-        stars.append((x, y, z))
+        stars.append((x, y, z, scol))
 
         # Process next star
         i = i + 1
+        sran = 0
 
     # Now generate the Hub. This places a point on or under the curve
     # maxHubZ - s d^2 where s is a scale factor calculated so that z = 0 is
@@ -115,6 +138,7 @@ def generateStars():
     scale = MAXHUBZ / (HUBRAD * HUBRAD)
     i = 0
     while i < NUMHUB:
+        
         # Choose a random distance from center
         dist = random.random() * HUBRAD
 
@@ -126,11 +150,34 @@ def generateStars():
         y = math.sin(theta * math.pi / 180.0) * dist
         z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
 
+        SRAN = random.randrange(0, 8)
+        if SRAN == 0:
+            scol = (255, 211, 186)
+        elif SRAN == 1: 
+            scol = (255, 211, 186)
+        elif SRAN == 2: 
+            scol = (255, 211, 186)
+        elif SRAN == 3: 
+            scol = (255, 222, 182)
+        elif SRAN == 4: 
+            scol = (255, 222, 182)
+        elif SRAN == 5: 
+            scol = (255, 244, 194)
+        elif SRAN == 6: 
+            scol = (255, 225, 255)
+        elif SRAN == 7: 
+            scol = (228, 244, 255)
+        elif SRAN == 8: 
+            scol = (208, 220, 255)
+
+
         # Add star to the stars array
-        stars.append((x, y, z))
+        stars.append((x, y, z, scol))
 
         # Process next star
         i = i + 1
+        sran = 0
+    
 
 
 def drawToPNG(filename):
@@ -139,17 +186,17 @@ def drawToPNG(filename):
 
     # Find maximal star distance
     max = 0
-    for (x, y, z) in stars:
+    for (x, y, z, scol) in stars:
         if abs(x) > max: max = x
         if abs(y) > max: max = y
         if abs(z) > max: max = z
-
+        
     # Calculate zoom factor to fit the galaxy to the PNG size
     factor = float(PNGSIZE - PNGFRAME * 2) / (max * 2)
-    for (x, y, z) in stars:
+    for (x, y, z, scol) in stars:
         sx = factor * x + PNGSIZE / 2
         sy = factor * y + PNGSIZE / 2
-        draw.point((sx, sy), fill=PNGCOLOR)
+        draw.point((sx, sy), fill=scol)
 
     # Save the PNG
     image.save(filename)
