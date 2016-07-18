@@ -96,6 +96,9 @@ def generateStars():
         omega = 0.0
     i = 0
     while i < NUMDISK:
+
+        if i % 100 == 0:
+            print i
         
         # Choose a random distance from center
         dist = HUBRAD + random.random() * DISKRAD
@@ -190,6 +193,9 @@ def generateStars():
     scale = MAXHUBZ / (HUBRAD * HUBRAD)
     i = 0
     while i < NUMHUB:
+
+        if i % 100 == 0:
+            print i
         
         # Choose a random distance from center
         dist = random.random() * HUBRAD
@@ -201,59 +207,6 @@ def generateStars():
         x = math.cos(theta * math.pi / 180.0) * dist
         y = math.sin(theta * math.pi / 180.0) * dist
         z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
-
-    def choose_star_color():
-        SRAN = random.randrange(0, 23)
-        if SRAN == 0:
-            scol = (255, 185, 201)
-        elif SRAN == 1: 
-            scol = (255, 204, 198)
-        elif SRAN == 2:
-            scol = (255, 204, 198)
-        elif SRAN == 3:  
-            scol = (255, 218, 198)
-        elif SRAN == 4:
-            scol = (255, 218, 198)
-        elif SRAN == 5: 
-            scol = (255, 219, 178)
-        elif SRAN == 6: 
-            scol = (255, 233, 178)
-        elif SRAN == 7:
-            scol = (255, 233, 178)
-        elif SRAN == 8:
-            scol = (255, 233, 178)
-        elif SRAN == 9:
-            scol = (255, 233, 178)
-        elif SRAN == 10: 
-            scol = (255, 246, 178)
-        elif SRAN == 11: 
-            scol = (255, 253, 178)
-        elif SRAN == 12:
-            scol = (255, 253, 178)
-        elif SRAN == 13: 
-            scol = (255, 254, 212)
-        elif SRAN == 14:
-            scol = (255, 254, 212)
-        elif SRAN == 15: 
-            scol = (254, 255, 248)
-        elif SRAN == 16: 
-            scol = (255, 255, 255)
-        elif SRAN == 17:
-            scol = (236, 255, 255)
-        elif SRAN == 18:
-            scol = (236, 255, 255)
-        elif SRAN == 19:
-            scol = (207, 251, 255)
-        elif SRAN == 20:
-            scol = (207, 251, 255)
-        elif SRAN == 21:
-            scol = (207, 251, 255)
-        elif SRAN == 22:
-            scol = (207, 238, 255)
-        elif SRAN == 23:
-            scol = (165, 196, 255)
-        return scol
-
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
@@ -289,6 +242,8 @@ def drawToPNG(filename):
 
 # Generate the galaxy
 generateStars()
+
+print "drawing!"
 
 # Save the galaxy as PNG to galaxy.png
 drawToPNG("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
