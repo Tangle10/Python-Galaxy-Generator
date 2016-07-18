@@ -97,9 +97,6 @@ def generateStars():
     i = 0
     while i < NUMDISK:
 
-        if i % 100 == 0:
-            print i
-        
         # Choose a random distance from center
         dist = HUBRAD + random.random() * DISKRAD
 
@@ -149,9 +146,6 @@ def generateStars():
     scale = MAXHUBZ / (HUBRAD * HUBRAD)
     i = 0
     while i < NUMHUB:
-
-        if i % 100 == 0:
-            print i
         
         # Choose a random distance from center
         dist = random.random() * HUBRAD
@@ -198,8 +192,6 @@ def drawToPNG(filename):
 
 # Generate the galaxy
 generateStars()
-
-print "drawing!"
 
 # Save the galaxy as PNG to galaxy.png
 drawToPNG("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
