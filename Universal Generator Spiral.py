@@ -130,53 +130,9 @@ def generateStars():
         y = math.sin(theta * math.pi / 180.0) * dist
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
         
-        SRAN = random.randrange(0, 23)
-        if SRAN == 0:
-            scol = (255, 185, 201)
-        elif SRAN == 1: 
-            scol = (255, 204, 198)
-        elif SRAN == 2:  
-            scol = (255, 218, 198)
-        elif SRAN == 3: 
-            scol = (255, 219, 178)
-        elif SRAN == 4: 
-            scol = (255, 233, 178)
-        elif SRAN == 5:
-            scol = (255, 233, 178)
-        elif SRAN == 6:
-            scol = (255, 233, 178)
-        elif SRAN == 7:
-            scol = (255, 233, 178)
-        elif SRAN == 8:
-            scol = (255, 233, 178)
-        elif SRAN == 9: 
-            scol = (255, 246, 178)
-        elif SRAN == 10: 
-            scol = (255, 246, 178)
-        elif SRAN == 11: 
-            scol = (255, 253, 178)
-        elif SRAN == 13:
-            scol = (255, 253, 178)
-        elif SRAN == 14: 
-            scol = (255, 254, 212)
-        elif SRAN == 15:
-            scol = (255, 254, 212)
-        elif SRAN == 16: 
-            scol = (254, 255, 248)
-        elif SRAN == 17: 
-            scol = (255, 255, 255)
-        elif SRAN == 18:
-            scol = (236, 255, 255)
-        elif SRAN == 19:
-            scol = (236, 255, 255)
-        elif SRAN == 20:
-            scol = (207, 251, 255)
-        elif SRAN == 21:
-            scol = (207, 251, 255)
-        elif SRAN == 22:
-            scol = (207, 238, 255)
-        elif SRAN == 23:
-            scol = (165, 196, 255)
+        # Replaces the if/elif logic with a simple lookup. Faster and
+        # and easier to read.
+        scol = star_color_dict[random.randrange(0,23)]
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
