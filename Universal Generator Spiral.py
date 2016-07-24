@@ -57,9 +57,34 @@ PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 
 PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
-star_colors = [(255, 185, 201)()()()()()()()()()()()()()()()()()()()()()()()]
-
 stars = []
+
+star_color_dict = {
+    0: (255, 185, 201),
+    1: (255, 204, 198),
+    2: (255, 204, 198),
+    3: (255, 218, 198),
+    4: (255, 218, 198),
+    5: (255, 219, 178),
+    6: (255, 233, 178),
+    7: (255, 233, 178),
+    8: (255, 233, 178),
+    9: (255, 233, 178),
+    10: (255, 246, 178),
+    11: (255, 253, 178),
+    12: (255, 253, 178),
+    13: (255, 254, 212),
+    14: (255, 254, 212),
+    15: (254, 255, 248),
+    16: (255, 255, 255),
+    17: (236, 255, 255),
+    18: (236, 255, 255),
+    19: (207, 251, 255),
+    20: (207, 251, 255),
+    21: (207, 251, 255),
+    22: (207, 238, 255),
+    23: (165, 196, 255)
+}
 
 
 def generateStars():
@@ -71,7 +96,7 @@ def generateStars():
         omega = 0.0
     i = 0
     while i < NUMDISK:
-        
+
         # Choose a random distance from center
         dist = HUBRAD + random.random() * DISKRAD
 
@@ -102,53 +127,9 @@ def generateStars():
         y = math.sin(theta * math.pi / 180.0) * dist
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
         
-        SRAN = random.randrange(0, 23)
-        if SRAN == 0:
-            scol = (255, 185, 201)
-        elif SRAN == 1: 
-            scol = (255, 204, 198)
-        elif SRAN == 2:  
-            scol = (255, 218, 198)
-        elif SRAN == 3: 
-            scol = (255, 219, 178)
-        elif SRAN == 4: 
-            scol = (255, 233, 178)
-        elif SRAN == 5:
-            scol = (255, 233, 178)
-        elif SRAN == 6:
-            scol = (255, 233, 178)
-        elif SRAN == 7:
-            scol = (255, 233, 178)
-        elif SRAN == 8:
-            scol = (255, 233, 178)
-        elif SRAN == 9: 
-            scol = (255, 246, 178)
-        elif SRAN == 10: 
-            scol = (255, 246, 178)
-        elif SRAN == 11: 
-            scol = (255, 253, 178)
-        elif SRAN == 13:
-            scol = (255, 253, 178)
-        elif SRAN == 14: 
-            scol = (255, 254, 212)
-        elif SRAN == 15:
-            scol = (255, 254, 212)
-        elif SRAN == 16: 
-            scol = (254, 255, 248)
-        elif SRAN == 17: 
-            scol = (255, 255, 255)
-        elif SRAN == 18:
-            scol = (236, 255, 255)
-        elif SRAN == 19:
-            scol = (236, 255, 255)
-        elif SRAN == 20:
-            scol = (207, 251, 255)
-        elif SRAN == 21:
-            scol = (207, 251, 255)
-        elif SRAN == 22:
-            scol = (207, 238, 255)
-        elif SRAN == 23:
-            scol = (165, 196, 255)
+        # Replaces the if/elif logic with a simple lookup. Faster and
+        # and easier to read.
+        scol = star_color_dict[random.randrange(0,23)]
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
@@ -176,59 +157,6 @@ def generateStars():
         x = math.cos(theta * math.pi / 180.0) * dist
         y = math.sin(theta * math.pi / 180.0) * dist
         z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
-
-    def choose_star_color():
-        SRAN = random.randrange(0, 23)
-        if SRAN == 0:
-            scol = (255, 185, 201)
-        elif SRAN == 1: 
-            scol = (255, 204, 198)
-        elif SRAN == 2:
-            scol = (255, 204, 198)
-        elif SRAN == 3:  
-            scol = (255, 218, 198)
-        elif SRAN == 4:
-            scol = (255, 218, 198)
-        elif SRAN == 5: 
-            scol = (255, 219, 178)
-        elif SRAN == 6: 
-            scol = (255, 233, 178)
-        elif SRAN == 7:
-            scol = (255, 233, 178)
-        elif SRAN == 8:
-            scol = (255, 233, 178)
-        elif SRAN == 9:
-            scol = (255, 233, 178)
-        elif SRAN == 10: 
-            scol = (255, 246, 178)
-        elif SRAN == 11: 
-            scol = (255, 253, 178)
-        elif SRAN == 12:
-            scol = (255, 253, 178)
-        elif SRAN == 13: 
-            scol = (255, 254, 212)
-        elif SRAN == 14:
-            scol = (255, 254, 212)
-        elif SRAN == 15: 
-            scol = (254, 255, 248)
-        elif SRAN == 16: 
-            scol = (255, 255, 255)
-        elif SRAN == 17:
-            scol = (236, 255, 255)
-        elif SRAN == 18:
-            scol = (236, 255, 255)
-        elif SRAN == 19:
-            scol = (207, 251, 255)
-        elif SRAN == 20:
-            scol = (207, 251, 255)
-        elif SRAN == 21:
-            scol = (207, 251, 255)
-        elif SRAN == 22:
-            scol = (207, 238, 255)
-        elif SRAN == 23:
-            scol = (165, 196, 255)
-        return scol
-
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
