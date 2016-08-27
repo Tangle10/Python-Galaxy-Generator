@@ -33,13 +33,31 @@ RAND = random.randrange(0, 240000000000)
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
 
+NUMC = int(raw_input('Number of Globular Clusters other than Central <Default:0>:') or "1")
+
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
 NUMDISK = int(raw_input('Number of Disk Stars <Default:4000>:') or "4000")
 
+NUMCLUSA = NUMHUB / 70
+
+NUMCLUS = int(raw_input('Number of Stars in each Cluster <Default:Hub / 70>:') or str(NUMCLUSA))
+
+DISCLUSA = NUMCLUS / 4
+
+DISCLUS = int(raw_input('Distribution of Star Number in each Cluster <Default: Avg/ 4>:') or str(DISCLUSA))
+
 HUBRAD = float(raw_input('Radius of Core <Default:90.0>:') or "90.0")
 
 DISKRAD = float(raw_input('Radius of Disk <Default:45.0>:') or "45.0")
+
+CLUSRADA = NUMCLUS / 5
+
+CLUSRAD = float(raw_input('Radius of each cluster <Default:Star Number / 2>:') or str(CLUSRADA))
+
+DISCLRADA = CLUSRAD / 5
+
+DISCLRAD = float(raw_input('Distribution of Cluster Radius <Default:Avg / 5>:') or str(DISCLRADA))
 
 NUMARMS = int(raw_input('Number of Galactic Arms <Default:3>:') or "3")
 
@@ -58,6 +76,7 @@ PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
 PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 
 stars = []
+clusters = []
 
 star_color_dict = {
     0: (255, 185, 201),
@@ -86,6 +105,40 @@ star_color_dict = {
     23: (165, 196, 255)
 }
 
+SHRAD = HUBRAD * 0.1
+SCRAD = CLUSRAD * 0.06
+SDRAD = DISKRAD * 0.1
+NUMCLUSA = NUMCLUS - DISCLUS
+NUMCLUSB = NUMCLUS + DISCLUS
+CLUSRADA = CLUSRAD - DISCLRAD
+CLUSRADB = CLUSRAD + DISCLRAD
+NUMCB = NUMC + 1
+
+def generateClusters():
+    c = 0
+    cx = 0
+    cy = 0
+    cz = 0
+    rad = random.uniform(CLUSRADA, CLUSRADB)
+    num = random.uniform(NUMCLUSA, NUMCLUSB)
+    clusters.append((cx, cy, cz, rad, num))
+    c = 1
+    while c < NUMCB:
+        # random distance from centre
+        dist = random.uniform(CLUSRAD, (HUBRAD+DISKRAD))
+        # any rotation- clusters can be anywhere
+        theta = random.random() * 360
+        cx = math.cos(theta * math.pi / 180.0) * dist
+        cy = math.sin(theta * math.pi / 180.0) * dist
+        cz = random.random() * MAXHUBZ * 2.0 - MAXHUBZ
+        rad = random.uniform(CLUSRADA, CLUSRADB)
+        num = random.uniform(NUMCLUSA, NUMCLUSB)
+        # add cluster to clusters array
+        clusters.append((cx, cy, cz, rad, num))
+        # process next
+        c = c+1
+        sran = 0
+        cran = 0
 
 def generateStars():
     # omega is the separation (in degrees) between each arm
@@ -99,13 +152,14 @@ def generateStars():
 
         # Choose a random distance from center
         dist = HUBRAD + random.random() * DISKRAD
+        distb = dist + random.uniform(0,SDRAD)
 
         # This is the 'clever' bit, that puts a star at a given distance
         # into an arm: First, it wraps the star round by the number of
         # rotations specified.  By multiplying the distance by the number of
         # rotations the rotation is proportional to the distance from the
         # center, to give curvature
-        theta = ((360.0 * ARMROTS * (dist / DISKRAD))
+        theta = ((360.0 * ARMROTS * (distb / DISKRAD))
 
                  # Then move the point further around by a random factor up to
                  # ARMWIDTH
@@ -123,8 +177,8 @@ def generateStars():
 
         # Convert to cartesian
         #def cartesian_convert
-        x = math.cos(theta * math.pi / 180.0) * dist
-        y = math.sin(theta * math.pi / 180.0) * dist
+        x = math.cos(theta * math.pi / 180.0) * distb
+        y = math.sin(theta * math.pi / 180.0) * distb
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
         
         # Replaces the if/elif logic with a simple lookup. Faster and
@@ -149,14 +203,19 @@ def generateStars():
         
         # Choose a random distance from center
         dist = random.random() * HUBRAD
-
+        distb = dist + random.uniform(0,SHRAD)
+        
         # Any rotation (points are not on arms)
         theta = random.random() * 360
 
         # Convert to cartesian
-        x = math.cos(theta * math.pi / 180.0) * dist
-        y = math.sin(theta * math.pi / 180.0) * dist
-        z = (random.random() * 2 - 1) * (MAXHUBZ - scale * dist * dist)
+        x = math.cos(theta * math.pi / 180.0) * distb
+        y = math.sin(theta * math.pi / 180.0) * distb
+        z = (random.random() * 2 - 1) * (MAXHUBZ - scale * distb * distb)
+        
+        # Replaces the if/elif logic with a simple lookup. Faster and
+        # and easier to read.
+        scol = star_color_dict[random.randrange(0,23)]
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
@@ -164,6 +223,28 @@ def generateStars():
         # Process next star
         i = i + 1
         sran = 0
+        
+    # Generate clusters and their stars.
+    
+    c = 0
+    while c < NUMCB:
+        for (cx, cy, cz, rad, num) in clusters:    
+            scale = rad / (rad * rad)
+            i = 0
+            while i < num:
+                dist = random.uniform(-rad,rad)
+                distb = dist + random.uniform(0,SCRAD)
+                theta = random.random() * 360
+                # Cartesian!
+                x = cx + (math.cos(theta * math.pi / 180) * distb)
+                y = cy + (math.sin(theta * math.pi / 180) * distb)
+                z = (random.random() * 2 - 1) * ((cz + rad) - scale * distb * distb)
+                scol = star_color_dict[random.randrange(0,23)]
+                stars.append((x, y, z, scol))
+                i = i + 1
+                sran = 0
+        c = c+1
+
     
 
 
@@ -191,6 +272,7 @@ def drawToPNG(filename):
 
 
 # Generate the galaxy
+generateClusters()
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
@@ -198,17 +280,41 @@ drawToPNG("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
 
 # Create the galaxy's data galaxy.txt
 with open("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
-    text_file.write("Galaxy Number: {}".format(RAND))
-    text_file.write("Galaxy Name: {}".format(NAME))
-    text_file.write("Hub Stars: {}".format(NUMHUB))
-    text_file.write("Disk Stars: {}".format(NUMDISK))
-    text_file.write("Hub Radius: {}".format(HUBRAD))
-    text_file.write("Disk Radius: {}".format(DISKRAD))
-    text_file.write("Arm Number: {}".format(NUMARMS))
-    text_file.write("Arm Rotation: {}".format(ARMROTS))
-    text_file.write("Arm Width: {}".format(ARMWIDTH))
+    text_file.write("Galaxy Number: {}".format(RAND)
+                   )
+    text_file.write("Galaxy Name: {}".format(NAME)
+                   )
+    text_file.write("Number of Clusters: {}".format(NUMC)
+                   )
+    text_file.write("Hub Stars: {}".format(NUMHUB)
+                   )
+    text_file.write("Number of Stars per Cluster: {}".format(NUMCLUS)
+                   )
+    text_file.write("Star Number Distribution per Cluster: {}".format(DISCLUS)
+                   )
+    text_file.write("Disk Stars: {}".format(NUMDISK)
+                   )
+    text_file.write("Hub Radius: {}".format(HUBRAD)
+                   )
+    text_file.write("Cluster Radius: {}".format(CLUSRAD)
+                   )
+    text_file.write("Cluster Radius Distribution: {}".format(DISCLRAD)
+                   )
+    text_file.write("Disk Radius: {}".format(DISKRAD)
+                   )
+    text_file.write("Arm Number: {}".format(NUMARMS)
+                   )
+    text_file.write("Arm Rotation: {}".format(ARMROTS)
+                   )
+    text_file.write("Arm Width: {}".format(ARMWIDTH)
+                   )
     text_file.write("Hub Maximum Depth: {}".format(MAXHUBZ))
-    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ))
-    text_file.write("Maximum Outlier Distance: {}".format(FUZZ))
-    text_file.write("Image Size: {}".format(PNGSIZE))
-    text_file.write("Frame Size: {}".format(PNGFRAME))
+    
+    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ)
+                   )
+    text_file.write("Maximum Outlier Distance: {}".format(FUZZ)
+                   )
+    text_file.write("Image Size: {}".format(PNGSIZE)
+                   )
+    text_file.write("Frame Size: {}".format(PNGFRAME)
+                   )
