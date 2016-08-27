@@ -33,7 +33,7 @@ RAND = random.randrange(0, 240000000000)
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
 
-NUMC = int(raw_input('Number of Globular Clusters other than Central <Default:0>:') or "1")
+NUMC = int(raw_input('Number of Extra Globular Clusters <Default:1>:') or "1")
 
 NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
 
