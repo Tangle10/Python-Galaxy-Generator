@@ -33,33 +33,39 @@ RAND = random.randrange(0, 108000000000)
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
 
-NUMC = int(raw_input('Number of Globular Clusters other than Central <Default:0>:') or "1")
+HSB = int(raw_input('Galaxy Size Bracket <0 = 1-100, 1 = 100-1000, 2 = 1000-100000, 3 = 100000-1000000, 4 = 1000000-2000000>:'))
 
-NUMSTR = int(raw_input('Number of Stars <Default:2000>:') or "2000")
+NUMC = (random.randint(0,12))
 
-NUMCLUSA = NUMSTR / 70
+if HSB == 0: NUMSTR = random.randrange(1, 100)
+elif HSB == 1: NUMSTR = random.randrange(100, 1000)
+elif HSB == 2: NUMSTR = random.randrange(1000, 100000)
+elif HSB == 3: NUMSTR = random.randrange(100000, 1000000)
+elif HSB == 4: NUMSTR = random.randrange(1000000, 2000000)
 
-NUMCLUS = int(raw_input('Number of Stars in each Cluster <Default:Hub / 70>:') or str(NUMCLUSA))
+print NUMSTR
 
-DISCLUSA = NUMCLUS / 4
+NUMCLUS = NUMSTR / 70
 
-DISCLUS = int(raw_input('Distribution of Star Number in each Cluster <Default: Avg/ 4>:') or str(DISCLUSA))
+DISCLUS = NUMCLUS / 4
 
-GALRAD = float(raw_input('Radius of Galaxy <Default:90.0>:') or "90.0")
+GALX = int(NUMSTR / (random.randrange(8,20)))
 
-GALZ = float(raw_input('Maximum Depth of Galaxy <Default:16.0>:') or "16.0")
+GALY = int(NUMSTR / (random.randrange(6,28)))
 
-CLUSRADA = GALRAD / 12
+GALZ = int(NUMSTR / (random.randrange(10,40)))
 
-CLUSRAD = float(raw_input('Radius of each cluster <Default:Hub / 12>:') or str(CLUSRADA))
+CLUSRAD = NUMCLUS / 5
 
-DISCLRADA = CLUSRAD / 5
+DISCLRAD = CLUSRAD / 5
 
-DISCLRAD = float(raw_input('Distribution of Cluster Radius <Default:Avg / 5>:') or str(DISCLRADA))
+PNGSIZEA = GALX / 5
 
-PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
+PNGFRAMEA = PNGSIZEA / 10
 
-PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
+PNGSIZE = float(raw_input('X and Y Size of PNG <Default:Bad Idea>:') or str(PNGSIZEA))
+
+PNGFRAME = float(raw_input('PNG Frame Size <Default:Bad Idea>:') or str(PNGFRAMEA))
 
 stars = []
 clusters = []
@@ -70,24 +76,25 @@ star_color_dict = {
     2: (181, 18, 6),
     3: (200, 39, 13),
     4: (200, 63, 21),
-    5: (222, 137, 10),
-    6: (212, 178, 42),
-    7: (210, 188, 38),
-    8: (217, 207, 66),
-    9: (222, 226, 125),
-    10: (222, 226, 160),
-    11: (255, 255, 253),
-    12: (255, 255, 255),
-    13: (253, 255, 255),
-    14: (250, 255, 255),
-    15: (222, 243, 255),
-    16: (222, 243, 255),
-    17: (230, 243, 255),
-    18: (140, 176, 255),
+    5: (222, 75, 10),
+    6: (222, 102, 10),
+    7: (222, 137, 10),
+    8: (212, 178, 42),
+    9: (210, 188, 38),
+    10: (217, 207, 66),
+    11: (217, 207, 66),
+    12: (222, 226, 125),
+    13: (222, 226, 125),
+    14: (255, 255, 253),
+    15: (255, 255, 255),
+    16: (253, 255, 255),
+    17: (222, 243, 255),
+    18: (222, 243, 255),
     19: (140, 176, 225)
 }
 
-SGRAD = GALRAD * 0.1
+SGX = GALX * 0.1
+SGY = GALY * 0.1
 SCRAD = CLUSRAD * 0.06
 NUMCLUSA = NUMCLUS - DISCLUS
 NUMCLUSB = NUMCLUS + DISCLUS
@@ -106,12 +113,12 @@ def generateClusters():
     c = 1
     while c < NUMCB:
         # random distance from centre
-        dist = random.uniform(CLUSRAD, (HUBRAD+DISKRAD))
+        dist = random.uniform(CLUSRAD, GALX)
         # any rotation- clusters can be anywhere
         theta = random.random() * 360
         cx = math.cos(theta * math.pi / 180.0) * dist
         cy = math.sin(theta * math.pi / 180.0) * dist
-        cz = random.random() * MAXHUBZ * 2.0 - MAXHUBZ
+        cz = random.random() * GALZ * 2.0 - GALZ
         rad = random.uniform(CLUSRADA, CLUSRADB)
         num = random.uniform(NUMCLUSA, NUMCLUSB)
         # add cluster to clusters array
@@ -121,7 +128,6 @@ def generateClusters():
         sran = 0
         cran = 0
 
-
 def generateStars():
 
     # Now generate the Hub. This places a point on or under the curve
@@ -129,21 +135,23 @@ def generateStars():
     # at maxHubR (s = maxHubZ / maxHubR^2) AND so that minimum hub Z is at
     # maximum disk Z. (Avoids edge of hub being below edge of disk)
 
-    scale = GALZ / (GALRAD * GALRAD)
+    scale = GALZ / (GALX * GALY)
     i = 0
     while i < NUMSTR:
         
         # Choose a random distance from center
-        dist = random.random() * GALRAD
-        distb = dist + random.uniform(0,SGRAD)
+        distX = random.random() * GALX
+        distY = random.random() * GALY
+        distXb = distX + random.uniform(0,SGX)
+        distYb = distY + random.uniform(0,SGY)
         
         # Any rotation (points are not on arms)
         theta = random.random() * 360
 
         # Convert to cartesian
-        x = math.cos(theta * math.pi / 180.0) * distb
-        y = math.sin(theta * math.pi / 180.0) * distb
-        z = (random.random() * 2 - 1) * (GALZ - scale * distb * distb)
+        x = math.cos(theta * math.pi / 180.0) * distXb
+        y = math.sin(theta * math.pi / 180.0) * distYb
+        z = (random.random() * 2 - 1) * (GALZ - scale * distXb * distYb)
         
         # Replaces the if/elif logic with a simple lookup. Faster and
         # and easier to read.
@@ -175,6 +183,7 @@ def generateStars():
                 sran = 0
         c = c+1
     
+    
 
 
 def drawToPNG(filename):
@@ -205,17 +214,18 @@ generateClusters()
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG("lenticulargalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+drawToPNG("ellipticalgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
 
 # Create the galaxy's data galaxy.txt
-with open("lenticulargalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+with open("ellipticalgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
     text_file.write("Galaxy Number: {}".format(RAND))
     text_file.write("Galaxy Name: {}".format(NAME))
     text_file.write("Number of Clusters: {}".format(NUMC))
     text_file.write("Stars: {}".format(NUMSTR))
     text_file.write("Number of Stars per Cluster {}".format(NUMCLUS))
     text_file.write("Star Number Distribution per Cluster {}".format(DISCLUS))
-    text_file.write("Galaxy Radius: {}".format(GALRAD))
+    text_file.write("Galaxy X Length: {}".format(GALX))
+    text_file.write("Galaxy Y Length: {}".format(GALY))
     text_file.write("Galaxy Z Length: {}".format(GALZ))
     text_file.write("Cluster Radius: {}".format(CLUSRAD))
     text_file.write("Cluster Radius Distribution: {}".format(DISCLRAD))

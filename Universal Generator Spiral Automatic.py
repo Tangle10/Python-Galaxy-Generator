@@ -28,54 +28,57 @@ import sys
 PNGBGCOLOR = (0, 0, 0)
 
 # Quick Filename
-RAND = random.randrange(0, 108000000000)
+RAND = random.randrange(0, 240000000000)
 
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
 
-NUMC = int(raw_input('Number of Globular Clusters other than Central <Default:0>:') or "1")
+HSB = int(raw_input('Hub Size Bracket <0 = 1-100, 1 = 100-1000, 2 = 1000-100000, 3 = 100000-1000000, 4 = 1000000-2000000>:'))
 
-NUMHUB = int(raw_input('Number of Core Stars <Default:2000>:') or "2000")
+NUMC = (random.randint(0,12))
 
-NUMINT = int(raw_input('Number of Intermediate Stars <Default:800>:') or "800")
+if HSB == 0: NUMHUB = random.randrange(1, 100)
+elif HSB == 1: NUMHUB = random.randrange(100, 1000)
+elif HSB == 2: NUMHUB = random.randrange(1000, 100000)
+elif HSB == 3: NUMHUB = random.randrange(100000, 1000000)
+elif HSB == 4: NUMHUB = random.randrange(1000000, 2000000)
 
-NUMDISK = int(raw_input('Number of Disk Stars <Default:4000>:') or "4000")
+print NUMHUB
 
-NUMCLUSA = NUMHUB / 70
+NUMDISK = int((random.uniform(0.5,4)) * NUMHUB)
 
-NUMCLUS = int(raw_input('Number of Stars in each Cluster <Default:Hub / 70>:') or str(NUMCLUSA))
+NUMCLUS = NUMHUB / 70
 
-DISCLUSA = NUMCLUS / 4
+DISCLUS = NUMCLUS / 4
 
-DISCLUS = int(raw_input('Distribution of Star Number in each Cluster <Default: Avg/ 4>:') or str(DISCLUSA))
+HUBRAD = int(NUMHUB / (random.randrange(8,20)))
 
-HUBRAD = float(raw_input('Radius of Core <Default:90.0>:') or "90.0")
+DISKRAD = int(NUMDISK / (random.randrange(4,18)))
 
-INTRADA = HUBRAD * 0.3
+CLUSRAD = NUMCLUS / 5
 
-INTRAD = float(raw_input('Intermediate Area Radius <Default: Hub Radius * 0.3>:') or str(INTRADA))
+DISCLRAD = CLUSRAD / 5
 
-DISKRAD = float(raw_input('Radius of Disk <Default:45.0>:') or "45.0")
+NUMARMS = random.randint(0,12)
 
-CLUSRADA = NUMCLUS / 5
+ARMROTS = random.uniform(0.2,2)
 
-CLUSRAD = float(raw_input('Radius of each cluster <Default:Hub / 12>:') or str(CLUSRADA))
+if NUMARMS: ARMWIDTH = (360.0 / NUMARMS) / 1.5
+else: ARMWIDTH = 0
 
-DISCLRADA = CLUSRAD / 5
+MAXHUBZ = int(HUBRAD / (random.uniform(5,1)))
 
-DISCLRAD = float(raw_input('Distribution of Cluster Radius <Default:Avg / 5>:') or str(DISCLRADA))
+MAXDISKZ = int(DISKRAD / (random.uniform(1000,8)))
 
-MAXHUBZ = float(raw_input('Maximum Depth of Core <Default:16.0>:') or "16.0")
+FUZZ = ARMWIDTH / 4
 
-MAXINTZA = MAXHUBZ / 2
+PNGSIZEA = HUBRAD / 5
 
-MAXINTZ = float(raw_input('Maximum Depth of Intermediate Area <Default: Core Depth / 2>:') or str(MAXINTZA))
+PNGFRAMEA = PNGSIZEA / 10
 
-MAXDISKZ = float(raw_input('Maximum Depth of Arms <Default:2.0>:') or "2.0")
+PNGSIZE = float(raw_input('X and Y Size of PNG <Default:Bad Idea>:') or str(PNGSIZEA))
 
-PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
-
-PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
+PNGFRAME = float(raw_input('PNG Frame Size <Default:Bad Idea>:') or str(PNGFRAMEA))
 
 stars = []
 clusters = []
@@ -127,10 +130,8 @@ censtar_color_dict = {
 }
 
 SHRAD = HUBRAD * 0.1
-DRAD = HUBRAD + INTRAD
-SDRAD = DISKRAD * 0.1
-SIRAD = INTRAD * 0.1
 SCRAD = CLUSRAD * 0.06
+SDRAD = DISKRAD * 0.1
 NUMCLUSA = NUMCLUS - DISCLUS
 NUMCLUSB = NUMCLUS + DISCLUS
 CLUSRADA = CLUSRAD - DISCLRAD
@@ -166,13 +167,15 @@ def generateClusters():
 def generateStars():
     # omega is the separation (in degrees) between each arm
     # Prevent div by zero error:
-    omega = 30.0
-    
+    if NUMARMS:
+        omega = 360.0 / NUMARMS
+    else:
+        omega = 0.0
     i = 0
     while i < NUMDISK:
 
         # Choose a random distance from center
-        dist = DRAD + random.random() * DISKRAD
+        dist = HUBRAD + random.random() * DISKRAD
         distb = dist + random.uniform(0,SDRAD)
 
         # This is the 'clever' bit, that puts a star at a given distance
@@ -180,19 +183,19 @@ def generateStars():
         # rotations specified.  By multiplying the distance by the number of
         # rotations the rotation is proportional to the distance from the
         # center, to give curvature
-        theta = ((360.0 * (distb / DISKRAD))
+        theta = ((360.0 * ARMROTS * (distb / DISKRAD))
 
                  # Then move the point further around by a random factor up to
                  # ARMWIDTH
-                 + random.random() * 65
+                 + random.random() * ARMWIDTH
 
                  # Then multiply the angle by a factor of omega, putting the
                  # point into one of the arms
                  # + (omega * random.random() * NUMARMS )
-                 + omega * random.randrange(0, 12)
+                 + omega * random.randrange(0, NUMARMS)
 
                  # Then add a further random factor, 'fuzzin' the edge of the arms
-                 + random.random() * 15 * 2.0 - 15
+                 + random.random() * FUZZ * 2.0 - FUZZ
                  # + random.randrange( -FUZZ, FUZZ )
                  )
 
@@ -245,26 +248,6 @@ def generateStars():
         i = i + 1
         sran = 0
         
-    scale = MAXINTZ / (DRAD * DRAD)
-    i = 0
-    while i < NUMINT:
-        
-        dist = HUBRAD + random.random() * INTRAD
-        distb = dist + random.uniform(0,SIRAD)
-        
-        theta = random.random() * 360
-        
-        x = math.cos(theta * math.pi / 180.0) * distb
-        y = math.sin(theta * math.pi / 180.0) * distb
-        z = (random.random() * 2 - 1) * (MAXINTZ - scale * distb * distb)
-        
-        scol = censtar_color_dict[random.randrange(0,19)]
-        
-        stars.append((x, y, z, scol))
-        
-        i = i + 1
-        sran = 0
-        
     # Generate clusters and their stars.
     
     c = 0
@@ -285,6 +268,7 @@ def generateStars():
                 i = i + 1
                 sran = 0
         c = c+1
+
     
 
 
@@ -316,26 +300,45 @@ generateClusters()
 generateStars()
 
 # Save the galaxy as PNG to galaxy.png
-drawToPNG("ringgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
+drawToPNG("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".png")
 
 # Create the galaxy's data galaxy.txt
-with open("ringgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
-    text_file.write("Galaxy Number: {}".format(RAND))
-    text_file.write("Galaxy Name: {}".format(NAME))
-    text_file.write("Number of Clusters: {}".format(NUMC))
-    text_file.write("Hub Stars: {}".format(NUMHUB))
-    text_file.write("Number of Stars per Cluster {}".format(NUMCLUS))
-    text_file.write("Star Number Distribution per Cluster {}".format(DISCLUS))
-    text_file.write("Intermediate Stars: {}".format(NUMINT))
-    text_file.write("Disk Stars: {}".format(NUMDISK))
-    text_file.write("Hub Radius: {}".format(HUBRAD))
-    text_file.write("Cluster Radius: {}".format(CLUSRAD))
-    text_file.write("Cluster Radius Distribution: {}".format(DISCLRAD))
-    text_file.write("Intermediate Area Radius: {}".format(INTRAD))
-    text_file.write("Disk Radius: {}".format(DISKRAD))
+with open("spiralgalaxy" + str(RAND) + "-" + str(NAME) + ".txt", "w") as text_file:
+    text_file.write("Galaxy Number: {}".format(RAND)
+                   )
+    text_file.write("Galaxy Name: {}".format(NAME)
+                   )
+    text_file.write("Number of Clusters: {}".format(NUMC)
+                   )
+    text_file.write("Hub Stars: {}".format(NUMHUB)
+                   )
+    text_file.write("Number of Stars per Cluster: {}".format(NUMCLUS)
+                   )
+    text_file.write("Star Number Distribution per Cluster: {}".format(DISCLUS)
+                   )
+    text_file.write("Disk Stars: {}".format(NUMDISK)
+                   )
+    text_file.write("Hub Radius: {}".format(HUBRAD)
+                   )
+    text_file.write("Cluster Radius: {}".format(CLUSRAD)
+                   )
+    text_file.write("Cluster Radius Distribution: {}".format(DISCLRAD)
+                   )
+    text_file.write("Disk Radius: {}".format(DISKRAD)
+                   )
+    text_file.write("Arm Number: {}".format(NUMARMS)
+                   )
+    text_file.write("Arm Rotation: {}".format(ARMROTS)
+                   )
+    text_file.write("Arm Width: {}".format(ARMWIDTH)
+                   )
     text_file.write("Hub Maximum Depth: {}".format(MAXHUBZ))
-    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ))
-    text_file.write("Intermediate Area Depth: {}".format(MAXINTZ))
-    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ))
-    text_file.write("Image Size: {}".format(PNGSIZE))
-    text_file.write("Frame Size: {}".format(PNGFRAME))
+    
+    text_file.write("Disk Maximum Depth: {}".format(MAXDISKZ)
+                   )
+    text_file.write("Maximum Outlier Distance: {}".format(FUZZ)
+                   )
+    text_file.write("Image Size: {}".format(PNGSIZE)
+                   )
+    text_file.write("Frame Size: {}".format(PNGFRAME)
+                   )

@@ -78,31 +78,50 @@ PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
 stars = []
 clusters = []
 
-star_color_dict = {
-    0: (255, 185, 201),
-    1: (255, 204, 198),
-    2: (255, 204, 198),
-    3: (255, 218, 198),
-    4: (255, 218, 198),
-    5: (255, 219, 178),
-    6: (255, 233, 178),
-    7: (255, 233, 178),
-    8: (255, 233, 178),
-    9: (255, 233, 178),
-    10: (255, 246, 178),
-    11: (255, 253, 178),
-    12: (255, 253, 178),
-    13: (255, 254, 212),
-    14: (255, 254, 212),
-    15: (254, 255, 248),
-    16: (255, 255, 255),
-    17: (236, 255, 255),
-    18: (236, 255, 255),
-    19: (207, 251, 255),
-    20: (207, 251, 255),
-    21: (207, 251, 255),
-    22: (207, 238, 255),
-    23: (165, 196, 255)
+disstar_color_dict = {
+    0: (229, 30, 30),
+    1: (203, 30, 26),
+    2: (181, 18, 6),
+    3: (200, 39, 13),
+    4: (200, 63, 21),
+    5: (222, 137, 10),
+    6: (212, 178, 42),
+    7: (210, 188, 38),
+    8: (217, 207, 66),
+    9: (222, 226, 125),
+    10: (222, 226, 160),
+    11: (255, 255, 253),
+    12: (255, 255, 255),
+    13: (253, 255, 255),
+    14: (250, 255, 255),
+    15: (222, 243, 255),
+    16: (222, 243, 255),
+    17: (230, 243, 255),
+    18: (140, 176, 255),
+    19: (140, 176, 225)
+}
+
+censtar_color_dict = {
+    0: (229, 30, 30),
+    1: (203, 30, 26),
+    2: (181, 18, 6),
+    3: (200, 39, 13),
+    4: (200, 63, 21),
+    5: (222, 75, 10),
+    6: (222, 102, 10),
+    7: (222, 137, 10),
+    8: (212, 178, 42),
+    9: (210, 188, 38),
+    10: (217, 207, 66),
+    11: (217, 207, 66),
+    12: (222, 226, 125),
+    13: (222, 226, 125),
+    14: (255, 255, 253),
+    15: (255, 255, 255),
+    16: (253, 255, 255),
+    17: (222, 243, 255),
+    18: (222, 243, 255),
+    19: (140, 176, 225)
 }
 
 SHRAD = HUBRAD * 0.1
@@ -183,7 +202,7 @@ def generateStars():
         
         # Replaces the if/elif logic with a simple lookup. Faster and
         # and easier to read.
-        scol = star_color_dict[random.randrange(0,23)]
+        scol = disstar_color_dict[random.randrange(0,19)]
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
@@ -215,7 +234,7 @@ def generateStars():
         
         # Replaces the if/elif logic with a simple lookup. Faster and
         # and easier to read.
-        scol = star_color_dict[random.randrange(0,23)]
+        scol = censtar_color_dict[random.randrange(0,19)]
 
         # Add star to the stars array
         stars.append((x, y, z, scol))
@@ -239,7 +258,7 @@ def generateStars():
                 x = cx + (math.cos(theta * math.pi / 180) * distb)
                 y = cy + (math.sin(theta * math.pi / 180) * distb)
                 z = (random.random() * 2 - 1) * ((cz + rad) - scale * distb * distb)
-                scol = star_color_dict[random.randrange(0,23)]
+                scol = censtar_color_dict[random.randrange(0,19)]
                 stars.append((x, y, z, scol))
                 i = i + 1
                 sran = 0

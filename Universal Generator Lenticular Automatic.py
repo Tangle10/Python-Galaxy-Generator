@@ -33,33 +33,38 @@ RAND = random.randrange(0, 108000000000)
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
 
-NUMC = int(raw_input('Number of Globular Clusters other than Central <Default:0>:') or "1")
+HSB = int(raw_input('Galaxy Size Bracket <0 = 1-100, 1 = 100-1000, 2 = 1000-100000, 3 = 100000-1000000, 4 = 1000000-2000000>:'))
 
-NUMSTR = int(raw_input('Number of Stars <Default:2000>:') or "2000")
+NUMC = (random.randint(0,12))
 
-NUMCLUSA = NUMSTR / 70
+if HSB == 0: NUMSTR = random.randrange(1, 100)
+elif HSB == 1: NUMSTR = random.randrange(100, 1000)
+elif HSB == 2: NUMSTR = random.randrange(1000, 100000)
+elif HSB == 3: NUMSTR = random.randrange(100000, 1000000)
+elif HSB == 4: NUMSTR = random.randrange(1000000, 2000000)
 
-NUMCLUS = int(raw_input('Number of Stars in each Cluster <Default:Hub / 70>:') or str(NUMCLUSA))
+print NUMSTR
 
-DISCLUSA = NUMCLUS / 4
+NUMCLUS = NUMSTR / 70
 
-DISCLUS = int(raw_input('Distribution of Star Number in each Cluster <Default: Avg/ 4>:') or str(DISCLUSA))
+DISCLUS = NUMCLUS / 4
 
-GALRAD = float(raw_input('Radius of Galaxy <Default:90.0>:') or "90.0")
+GALRAD = int(NUMSTR / (random.randrange(8,20)))
 
-GALZ = float(raw_input('Maximum Depth of Galaxy <Default:16.0>:') or "16.0")
+GALZ = int(NUMSTR / (random.randrange(10,40)))
 
-CLUSRADA = GALRAD / 12
+CLUSRAD = NUMCLUS / 5
 
-CLUSRAD = float(raw_input('Radius of each cluster <Default:Hub / 12>:') or str(CLUSRADA))
+DISCLRAD = CLUSRAD / 5
 
-DISCLRADA = CLUSRAD / 5
+PNGSIZEA = GALRAD / 5
 
-DISCLRAD = float(raw_input('Distribution of Cluster Radius <Default:Avg / 5>:') or str(DISCLRADA))
+PNGFRAMEA = PNGSIZEA / 10
 
-PNGSIZE = float(raw_input('X and Y Size of PNG <Default:1200>:') or "1200")
+PNGSIZE = float(raw_input('X and Y Size of PNG <Default:Bad Idea>:') or str(PNGSIZEA))
 
-PNGFRAME = float(raw_input('PNG Frame Size <Default:50>:') or "50")
+PNGFRAME = float(raw_input('PNG Frame Size <Default:Bad Idea>:') or str(PNGFRAMEA))
+
 
 stars = []
 clusters = []
@@ -106,12 +111,12 @@ def generateClusters():
     c = 1
     while c < NUMCB:
         # random distance from centre
-        dist = random.uniform(CLUSRAD, (HUBRAD+DISKRAD))
+        dist = random.uniform(CLUSRAD, (GALRAD))
         # any rotation- clusters can be anywhere
         theta = random.random() * 360
         cx = math.cos(theta * math.pi / 180.0) * dist
         cy = math.sin(theta * math.pi / 180.0) * dist
-        cz = random.random() * MAXHUBZ * 2.0 - MAXHUBZ
+        cz = random.random() * GALZ * 2.0 - GALZ
         rad = random.uniform(CLUSRADA, CLUSRADB)
         num = random.uniform(NUMCLUSA, NUMCLUSB)
         # add cluster to clusters array
