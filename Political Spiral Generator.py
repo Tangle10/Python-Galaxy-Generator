@@ -20,6 +20,8 @@ from PIL import ImageDraw
 import random
 import math
 import sys
+import re
+from collections import defaultdict
 
 # Generation parameters:
 
@@ -29,6 +31,196 @@ PNGBGCOLOR = (0, 0, 0)
 
 # Quick Filename
 RAND = random.randrange(0, 240000000000)
+
+EMPRAND = random.randrange(0, 5000000000000)
+
+# to line 207- made by mewo2:
+
+def choose(lst, exponent=2):
+    x = random.random() ** exponent
+    return lst[int(x * len(lst))]
+
+
+# In[98]:
+
+class Language(object):
+    def __init__(self, phonemes, syll='CVC', ortho={}, wordlength=(1,4), restricts=[]):
+        self.phonemes = {}
+        for k, v in phonemes.iteritems():
+            v = list(v)
+            random.shuffle(v)
+            self.phonemes[k] = v
+        self.syll = syll
+        self.ortho = ortho
+        self.wordlength = wordlength
+        self.morphemes = defaultdict(list)
+        self.allmorphemes = set()
+        self.words = defaultdict(list)
+        self.restricts = restricts
+        self.genitive = self.morpheme('of', 3)
+        self.definite = self.morpheme('the', 3)
+        self.joiner = random.choice('   -')
+        self.minlength = 6
+        self.used = []
+        self.last_n = []
+
+    def syllable(self):
+        while True:
+            phones = []
+            for s in self.syll:
+                if s == '?':
+                    if random.random() > 0.5:
+                        phones = phones[:-1]
+                else:
+                    p = choose(self.phonemes[s], 1.5)
+                    phones.append(p)
+            syll = ''.join(phones)
+            for r in self.restricts:
+                if re.search(r, syll):
+                    break
+            else:
+                return syll
+
+    def orthosyll(self):
+        s = self.syllable()
+        o = u""
+        for c in s:
+            o += self.ortho.get(c, c.lower())
+        return o
+    
+    def morpheme(self, key=None, maxlength=None):
+        morphemes = self.morphemes[key]
+        n = random.randrange(len(morphemes) + (10 if key is None else 1))
+        if n < len(morphemes):
+            return morphemes[n]
+        for _ in xrange(100):
+            s = self.orthosyll()
+            if maxlength and len(s) > maxlength:
+                continue
+            if s not in self.allmorphemes:
+                break
+        morphemes.append(s)
+        self.allmorphemes.add(s)
+        return s
+    
+    def word(self, key=None):
+        ws = self.words[key]
+        while True:
+            n = random.randrange(len(ws) + (3 if key is None else 2))
+            if n < len(ws):
+                if ws[n] in self.last_n:
+                    continue
+                self.last_n.append(ws[n])
+                self.last_n = self.last_n[-3:]
+                return ws[n]
+            l = random.randrange(*self.wordlength)
+            keys = [key] + [None for _ in xrange(l-1)]
+            random.shuffle(keys)
+            w = ''.join(self.morpheme(k) for k in keys)
+            ws.append(w)
+            self.last_n.append(w)
+            self.last_n = self.last_n[-3:]
+            return w
+        
+    def name(self, key=None, genitive=0.5, definite=0.1, minlength=5,
+            maxlength=12):
+        while True:
+            if genitive > random.random():
+                x = random.random()
+                w1 = self.word(key if random.random() < 0.6 
+                                   else None).capitalize()
+                w2 = self.word(key if random.random() < 0.6 
+                                   else None).capitalize()
+                if w1 == w2: continue
+                if random.random() > 0.5:
+                    p = self.joiner.join([w1, self.genitive, w2])
+                else:
+                    p = self.joiner.join([w1, w2])
+            else:
+                p = self.word(key).capitalize()
+            if random.random() < definite:
+                p = self.joiner.join([self.definite, p])
+            if not hasattr(self, "used"):
+                self.used = []
+            for p2 in self.used:
+                if p in p2 or p2 in p:
+                    break
+            else:
+                if minlength <= len(p) <= maxlength:
+                    self.used.append(p)
+                    return p
+
+
+# In[101]:
+
+vsets = ["AIU", "AEIOU", "AEIOUaei", "AEIOUu", "AIUai", "EOU", "AEIOU@0u"]
+csets = ["PTKMNSL", "PTKBDGMNLRSsZzc", "PTKMNH", "HKLMNPW'", 
+         "PTKQVSGRMNnLJ", "TKSsDBQgxMNLRWY", "TKDGMNSs",
+         "PTKBDGMNzSZcHJW"]
+lsets = ["RL", "R", "L", "WY", "RLWY"]
+ssets = ["S", "Ss", "SsF"]
+fsets = ["MN", "SK", "MNn", 'SsZz']
+syllsets = ["CVV?C", "CVC", "CVVC?", "CVC?", "CV", "VC", "CVF", "C?VC", "CVF?", 
+            "CL?VC", "CL?VF", "S?CVC", "S?CVF", "S?CVC?", 
+             "C?VF", "C?VC?", "C?VF?", "C?L?VC", "VC",
+           "CVL?C?", "C?VL?C", "C?VLC?"
+           ]
+vorthos=[{'a': u'a', 'e': u'e', 'i': u'i', 'u': u'u', '@': u'a', '0': u'o'},
+         {'a': u'au', 'e': u'ei', 'i': u'ie', 'u': u'oo', '@': u'ea', '0': u'ou'},
+         {'a': u'a', 'e': u'e', 'i': u'y', 'u': u'w', '@': u'a', '0': u'o'},
+         {'a': u'aa', 'e': u'ee', 'i': u'ii', 'u': u'uu', '@': u'ai', '0': u'oo'}]
+corthos = [{'n': 'ng', 'x': 'kh', 's': 'sh', 'g': 'gh', 'z': 'zh', 'c': 'ch'},
+           {'n': u'ny', 'x': 'x', 's': u's', 'g': u'gh', 'z': u'z', 'c': u'c'},
+           {'n': u'ng', 'x': 'ch', 's': u'sch', 'g': u'gh', 'z': u'ts', 'c': u'tsch'},
+          {'n': u'ng', 'x': 'c', 's': u'ch', 'g': u'gh', 'z': u'j', 'c': u'tch'},
+          {'n': u'ng', 'x': 'c', 's': u'x', 'g': u'g', 'z': u'zh', 'c': u'q'}]
+restricts = ['Ss', 'sS', 'LR', 'RL', "FS", "Fs", "SS", "ss", r"(.)\1"]
+
+
+# In[102]:
+def get_language():
+    while True:
+        cset = choose(csets)
+        vset = choose(vsets)
+        syll = choose(syllsets, 1)
+        if len(cset) ** syll.count("C") * len(vset) * syll.count("V") > 30:
+            break
+    fset = choose([cset, random.choice(fsets), cset + random.choice(fsets)])
+    lset = choose(lsets)
+    sset = choose(ssets)
+    ortho = {"'": u"`"}
+    ortho.update(choose(vorthos))
+    ortho.update(choose(corthos))
+    minlength = random.choice([1,2])
+    if len(syll) < 3:
+        minlength += 1
+    maxlength = random.randrange(minlength+1, 7)
+
+    l = Language(phonemes={'V': vset, 
+                           'C': cset, 
+                           'L': lset,
+                           'F': fset,
+                           'S': sset},
+                 syll=syll,
+                 ortho=ortho,
+                restricts=restricts,
+                wordlength=(minlength, maxlength))
+    return l
+
+def show_language(l):
+    print l.phonemes['V'], l.phonemes['C']
+    if 'F' in l.syll: print l.phonemes['F'],
+    if 'L' in l.syll: print l.phonemes['L'],
+    if 'S' in l.syll: print l.phonemes['S'],
+    print l.syll
+    n = 0
+    while n < starnumb:
+        bet = (l.name("city"))
+        print bet
+        wds.append(str(bet))
+        n = n+1
+    print u', '.join(wds)
+    print "* * *"
 
 # ---------------------------------------------------------------------------
 NAME = raw_input('Galaxy Name:')
@@ -43,6 +235,17 @@ elif HSB == 2: NUMHUB = random.randrange(1000, 100000)
 elif HSB == 3: NUMHUB = random.randrange(100000, 1000000)
 elif HSB == 4: NUMHUB = random.randrange(1000000, 2000000)
 elif HSB == 5: NUMHUB = random.randrange(2000000, 3200000)
+    
+if HSB == 0: empn = 2
+elif HSB == 1: empn = 6
+elif HSB == 2: empn = 12
+elif HSB == 3: empn = 60
+elif HSB == 4: empn = 120
+elif HSB == 5: empn = 512
+
+starnumpre = floor((NUMHUB + NUMDISK) / empn)
+starnumear = starnumpre * 3
+
 
 print NUMHUB
 
@@ -83,8 +286,6 @@ PNGFRAME = float(raw_input('PNG Frame Size <Default:Bad Idea>:') or str(PNGFRAME
 
 stars = []
 clusters = []
-
-speccolorsmall = ["#FFFF00","#1CE6FF","#FF34FF","#FF4A46","#008941","#006FA6","#A30059","#FFDBE5","#7A4900","#0000A6","#63FFAC","#B79762","#004D43","#8FB0FF","#997D87","#5A0007","#809693","#FEFFE6","#1B4400","#4FC601","#3B5DFF","#4A3B53","#FF2F80","#61615A","#BA0900","#6B7900","#00C2A0","#FFAA92","#FF90C9","#B903AA","#D16100","#DDEFFF","#000035","#7B4F4B","#A1C299","#300018","#0AA6D8","#013349","#00846F","#372101","#FFB500","#C2FFED","#A079BF","#CC0744","#C0B9B2","#C2FF99","#001E09","#00489C","#6F0062","#0CBD66","#EEC3FF","#456D75","#B77B68","#7A87A1","#788D66","#885578","#FAD09F","#FF8A9A","#D157A0","#BEC459","#456648","#0086ED","#886F4C","#34362D","#B4A8BD","#00A6AA","#452C2C","#636375","#A3C8C9","#FF913F","#938A81","#575329","#00FECF","#B05B6F","#8CD0FF","#3B9700","#04F757","#C8A1A1","#1E6E00","#7900D7","#A77500","#6367A9","#A05837","#6B002C","#772600","#D790FF","#9B9700","#549E79","#FFF69F","#201625","#72418F","#BC23FF","#99ADC0","#3A2465","#922329","#5B4534","#FDE8DC","#404E55","#0089A3","#CB7E98","#A4E804","#324E72","#6A3A4C","#83AB58","#001C1E","#D1F7CE","#004B28","#C8D0F6","#A3A489","#806C66","#222800","#BF5650","#E83000","#66796D","#DA007C","#FF1A59","#8ADBB4","#1E0200","#5B4E51","#C895C5","#320033","#FF6832","#66E1D3","#CFCDAC","#D0AC94","#7ED379","#012C58","#7A7BFF","#D68E01","#353339","#78AFA1","#FEB2C6","#75797C","#837393","#943A4D","#B5F4FF","#D2DCD5","#9556BD","#6A714A","#001325","#02525F","#0AA3F7","#E98176","#DBD5DD","#5EBCD1","#3D4F44","#7E6405","#02684E","#962B75","#8D8546","#9695C5","#E773CE","#D86A78","#3E89BE","#CA834E","#518A87","#5B113C","#55813B","#E704C4","#00005F","#A97399","#4B8160","#59738A","#FF5DA7","#F7C9BF","#643127","#513A01","#6B94AA","#51A058","#A45B02","#1D1702","#E20027","#E7AB63","#4C6001","#9C6966","#64547B","#97979E","#006A66","#391406","#F4D749","#0045D2","#006C31","#DDB6D0","#7C6571","#9FB2A4","#00D891","#15A08A","#BC65E9","#FFFFFE","#C6DC99","#203B3C","#671190","#6B3A64","#F5E1FF","#FFA0F2","#CCAA35","#374527","#8BB400","#797868","#C6005A","#3B000A","#C86240","#29607C","#402334","#7D5A44","#CCB87C","#B88183","#AA5199","#B5D6C3","#A38469","#9F94F0","#A74571","#B894A6","#71BB8C","#00B433","#789EC9","#6D80BA","#953F00","#5EFF03","#E4FFFC","#1BE177","#BCB1E5","#76912F","#003109","#0060CD","#D20096","#895563","#29201D","#5B3213","#A76F42","#89412E","#1A3A2A","#494B5A","#A88C85","#F4ABAA","#A3F3AB","#00C6C8","#EA8B66","#958A9F","#BDC9D2","#9FA064","#BE4700","#658188","#83A485","#453C23","#47675D","#3A3F00","#061203","#DFFB71","#868E7E","#98D058","#6C8F7D","#D7BFC2","#3C3E6E","#D83D66","#2F5D9B","#6C5E46","#D25B88","#5B656C","#00B57F","#545C46","#866097","#365D25","#252F99","#00CCFF","#674E60","#FC009C","#92896B"]
 
 speccolor = ["#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
     "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -215,6 +416,169 @@ speccolor = ["#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "
     "#4D5C5E", "#C9403A", "#DDD7F3", "#005844", "#B4A200", "#488F69", "#858182", "#D4E9B9",
     "#3D7397", "#CAE8CE", "#D60034", "#AA6746", "#9E5585", "#BA6200"]
 
+emps_dict = {
+    0: "Impyr",
+    1: "Respov",
+    2: "Fedyr",
+    3: "Koved",
+    4: "Lyg",
+    5: "Kohl",
+}
+
+color_dict = {
+    0: "aqua",
+    1: "vela",
+    2: "ughi",
+    3: "marine",
+    4: "oise",
+    5: "garan",
+    6: "kart",
+    7: "bari",
+    8: "chari",
+    9: "ruse",
+    10: "lagha",
+    11: "uka",
+    12: "use",
+    13: "barh",
+    14: "elbi",
+    15: "chel",
+    16: "ember",
+}
+
+colour_dict = {
+    0: "burizh",
+    1: "karam",
+    2: "schuri",
+    3: "oleanha",
+    4: "dulme",
+    5: "pahj",
+    6: "khal",
+    7: "yati",
+    8: "dzhar",
+    9: "akose",
+    10: "yaul",
+    11: "kery",
+    12: "vagua",
+    13: "byol",
+    14: "bervaj",
+    15: "hayen",
+    16: "lyban",
+}
+
+vessel_dict = {
+    0: "-class ",
+    1: "-subclass ",
+    2: "-type ",
+    3: "-subtype ",
+}
+
+smallship_dict = {
+    0: "Auxship",
+    1: "Fighter",
+    2: "Corvette",
+    3: "Frigate",
+    4: "Minicarrier",
+    5: "Destroyer",
+    6: "Cruiser",
+    7: "Carrier",
+    8: "Battleship",
+    9: "Leviathan",
+    10: "Civship",
+}
+
+auxship_dict = {
+    0: "Nytvohl",
+    1: "Rivvohl",
+    2: "Sbayvohl",
+}
+
+fighter_dict = {
+    0: "Yndirzavdo",
+    1: "Fydar",
+    2: "Vonvar",
+    3: "Konvohl",
+}
+
+corvette_dict = {
+    0: "mi-Kolpad",
+    1: "ig-Kolpad",
+    2: "Kolpad",
+    3: "Vatrolvohl",
+    4: "Nyzalvohl",
+    5: "ja-Kolpad",
+}
+
+frigate_dict = {
+    0: "Travrogud",
+    1: "mi-Vrogud",
+    2: "ig-Vrogud",
+    3: "Vrogud",
+    4: "ja-Vrogud",
+    5: "mi-Jezdar",
+    6: "ig-Jezdar",
+}
+
+minicarrier_dict = {
+    0: "Vrogud-kerya",
+    1: "Jezdar-kerya",
+}
+
+destroyer_dict = {
+    0: "Jezdar",
+    1: "ja-Jezdar",
+}
+
+cruiser_dict = {
+    0: "Lyzh Jezdar",
+    1: "tsu-Gryzihyr",
+    2: "mi-Gryzihyr",
+    3: "ig-Gryzihyr",
+    4: "Gryzihyr",
+    5: "ja-Gryzihyr",
+}
+
+carrier_dict = {
+    0: "mi-Kerya",
+    1: "ig-Kerya",
+    2: "Kerya",
+    3: "ja-Kerya",
+}
+
+battleship_dict = {
+    0: "Zrakvohl",
+    1: "Vaghulgryzihyr",
+    2: "mi-Vaghulvohl",
+    3: "Vaghulvohl",
+    4: "ja-Vaghulvohl", 
+}
+
+leviathan_dict = {
+    0: "Tyedmokht",
+    1: "Hagermokht",
+    2: "Ilavutan",
+}
+
+civship_dict = {
+    0: "Pertar",
+    1: "Lytenor",
+    2: "Tigronar",
+    3: "Sybuer"
+}
+
+civ = 20
+aux = 10
+fight = 55
+corv = 30
+frig = 15
+micar = 4
+dest = 4
+cruis = 2
+carr = 1
+battl = 0.25
+levi = 0.05
+
+
+
 SHRAD = HUBRAD * 0.1
 SCRAD = CLUSRAD * 0.06
 SDRAD = DISKRAD * 0.1
@@ -223,6 +587,9 @@ NUMCLUSB = NUMCLUS + DISCLUS
 CLUSRADA = CLUSRAD - DISCLRAD
 CLUSRADB = CLUSRAD + DISCLRAD
 NUMCB = NUMC + 1
+fempn = 0
+
+    
 
 def generateClusters():
     c = 0
@@ -290,6 +657,36 @@ def generateStars():
         x = math.cos(theta * math.pi / 180.0) * distb
         y = math.sin(theta * math.pi / 180.0) * distb
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
+        
+        while fempn < empn:
+            starnum = random.randrange(0, int(starnumear))
+            emprad = HUBRAD / (empn * 2)
+            show_language(get_language())
+            print wds
+            starnames = []
+            stern = 0
+            empcl = str(random.choice(speccolor))
+            empcolor = str(random.choice(color_dict)) + str(random.choice(color_dict)) + " " + str(random.choice(colour_dict)) + "(" + str(empcl) + ")"
+
+            empst = random.choice(wds)
+            while stern < starnum:
+                strn = random.choice(wds)
+                starnames.append(strn)
+                stern = stern + 1
+            empty = emps_dict[random.randrange(0,5)]
+            empnp = str(empst) + " " + str(empty)
+            EMPN = str(empnp) + str(RAND)
+            with open(str(EMPN) + " " + ".txt", "w") as text_file:
+                text_file.write("Empire Number: {}".format(RAND))
+                text_file.write(" ")
+                text_file.write("Empire Name: {}".format(empnp))
+                text_file.write(" ")
+                text_file.write("Empire Color: {}".format(empcolor))
+                text_file.write(" ")
+                text_file.write("Stars: {}".format(starnames))
+    
+            
+        
         
         # Replaces the if/elif logic with a simple lookup. Faster and
         # and easier to read.
