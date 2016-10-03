@@ -465,119 +465,7 @@ colour_dict = {
     16: "lyban",
 }
 
-vessel_dict = {
-    0: "-class ",
-    1: "-subclass ",
-    2: "-type ",
-    3: "-subtype ",
-}
-
-smallship_dict = {
-    0: "Auxship",
-    1: "Fighter",
-    2: "Corvette",
-    3: "Frigate",
-    4: "Minicarrier",
-    5: "Destroyer",
-    6: "Cruiser",
-    7: "Carrier",
-    8: "Battleship",
-    9: "Leviathan",
-    10: "Civship",
-}
-
-auxship_dict = {
-    0: "Nytvohl",
-    1: "Rivvohl",
-    2: "Sbayvohl",
-}
-
-fighter_dict = {
-    0: "Yndirzavdo",
-    1: "Fydar",
-    2: "Vonvar",
-    3: "Konvohl",
-}
-
-corvette_dict = {
-    0: "mi-Kolpad",
-    1: "ig-Kolpad",
-    2: "Kolpad",
-    3: "Vatrolvohl",
-    4: "Nyzalvohl",
-    5: "ja-Kolpad",
-}
-
-frigate_dict = {
-    0: "Travrogud",
-    1: "mi-Vrogud",
-    2: "ig-Vrogud",
-    3: "Vrogud",
-    4: "ja-Vrogud",
-    5: "mi-Jezdar",
-    6: "ig-Jezdar",
-}
-
-minicarrier_dict = {
-    0: "Vrogud-kerya",
-    1: "Jezdar-kerya",
-}
-
-destroyer_dict = {
-    0: "Jezdar",
-    1: "ja-Jezdar",
-}
-
-cruiser_dict = {
-    0: "Lyzh Jezdar",
-    1: "tsu-Gryzihyr",
-    2: "mi-Gryzihyr",
-    3: "ig-Gryzihyr",
-    4: "Gryzihyr",
-    5: "ja-Gryzihyr",
-}
-
-carrier_dict = {
-    0: "mi-Kerya",
-    1: "ig-Kerya",
-    2: "Kerya",
-    3: "ja-Kerya",
-}
-
-battleship_dict = {
-    0: "Zrakvohl",
-    1: "Vaghulgryzihyr",
-    2: "mi-Vaghulvohl",
-    3: "Vaghulvohl",
-    4: "ja-Vaghulvohl", 
-}
-
-leviathan_dict = {
-    0: "Tyedmokht",
-    1: "Hagermokht",
-    2: "Ilavutan",
-}
-
-civship_dict = {
-    0: "Pertar",
-    1: "Lytenor",
-    2: "Tigronar",
-    3: "Sybuer"
-}
-
-civ = 20
-aux = 10
-fight = 55
-corv = 30
-frig = 15
-micar = 4
-dest = 4
-cruis = 2
-carr = 1
-battl = 0.25
-levi = 0.05
-
-
+ENPD = DISKRAD / HUBRAD 
 
 SHRAD = HUBRAD * 0.1
 SCRAD = CLUSRAD * 0.06
@@ -589,7 +477,31 @@ CLUSRADB = CLUSRAD + DISCLRAD
 NUMCB = NUMC + 1
 fempn = 0
 
-    
+def generateEmpires():
+    starnum = random.randrange(0, int(starnumear))
+    emprad = HUBRAD / (empn * 2)
+    show_language(get_language())
+    print wds
+    starnames = []
+    stern = 0
+    empcl = str(random.choice(speccolor))
+    empcolor = str(random.choice(color_dict)) + str(random.choice(color_dict)) + " " + str(random.choice(colour_dict)) + "(" + str(empcl) + ")"
+    empst = random.choice(wds)
+    while stern < starnum:
+        strn = random.choice(wds)
+        starnames.append(strn)
+        stern = stern + 1
+    empty = emps_dict[random.randrange(0,5)]
+    empnp = str(empst) + " " + str(empty)
+    EMPN = str(empnp) + str(RAND)
+    with open("Spiral Galaxy" + str(RAND) + "-" + str(EMPN) + " " + ".txt", "w") as text_file:
+        text_file.write("Empire Number: {}".format(RAND))
+        text_file.write(" ")
+        text_file.write("Empire Name: {}".format(empnp))
+        text_file.write(" ")
+        text_file.write("Empire Color: {}".format(empcolor))
+        text_file.write(" ")
+        text_file.write("Stars: {}".format(starnames))
 
 def generateClusters():
     c = 0
@@ -659,35 +571,8 @@ def generateStars():
         z = random.random() * MAXDISKZ * 2.0 - MAXDISKZ
         
         while fempn < empn:
-            starnum = random.randrange(0, int(starnumear))
-            emprad = HUBRAD / (empn * 2)
-            show_language(get_language())
-            print wds
-            starnames = []
-            stern = 0
-            empcl = str(random.choice(speccolor))
-            empcolor = str(random.choice(color_dict)) + str(random.choice(color_dict)) + " " + str(random.choice(colour_dict)) + "(" + str(empcl) + ")"
-
-            empst = random.choice(wds)
-            while stern < starnum:
-                strn = random.choice(wds)
-                starnames.append(strn)
-                stern = stern + 1
-            empty = emps_dict[random.randrange(0,5)]
-            empnp = str(empst) + " " + str(empty)
-            EMPN = str(empnp) + str(RAND)
-            with open(str(EMPN) + " " + ".txt", "w") as text_file:
-                text_file.write("Empire Number: {}".format(RAND))
-                text_file.write(" ")
-                text_file.write("Empire Name: {}".format(empnp))
-                text_file.write(" ")
-                text_file.write("Empire Color: {}".format(empcolor))
-                text_file.write(" ")
-                text_file.write("Stars: {}".format(starnames))
+            generateEmpires
     
-            
-        
-        
         # Replaces the if/elif logic with a simple lookup. Faster and
         # and easier to read.
         scol = str(random.choice(speccolor))
