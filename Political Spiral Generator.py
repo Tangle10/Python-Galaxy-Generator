@@ -32,8 +32,6 @@ PNGBGCOLOR = (0, 0, 0)
 # Quick Filename
 RAND = random.randrange(0, 240000000000)
 
-EMPRAND = random.randrange(0, 5000000000000)
-
 # to line 207- made by mewo2:
 
 def choose(lst, exponent=2):
@@ -244,7 +242,7 @@ elif HSB == 4: empn = 120
 elif HSB == 5: empn = 512
 
 starnumpre = floor((NUMHUB + NUMDISK) / empn)
-starnumear = starnumpre * 3
+starnumear = int(starnumpre)
 
 
 print NUMHUB
@@ -464,9 +462,6 @@ colour_dict = {
     15: "hayen",
     16: "lyban",
 }
-
-ENPD = DISKRAD / HUBRAD 
-
 SHRAD = HUBRAD * 0.1
 SCRAD = CLUSRAD * 0.06
 SDRAD = DISKRAD * 0.1
@@ -479,7 +474,6 @@ fempn = 0
 
 def generateEmpires():
     starnum = random.randrange(0, int(starnumear))
-    emprad = HUBRAD / (empn * 2)
     show_language(get_language())
     print wds
     starnames = []
